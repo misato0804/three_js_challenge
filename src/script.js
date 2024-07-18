@@ -21,8 +21,25 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Object
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+// const geometry = new THREE.BoxGeometry(1, 1, 1, 2,2,2)
+
+const positionArray = new Float32Array(9)
+
+positionArray[0] = 0
+positionArray[1] = 0
+positionArray[2] = 0
+positionArray[3] = 0
+positionArray[4] = 1
+positionArray[5] = 0
+positionArray[6] = 1
+positionArray[7] = 0
+positionArray[8] = 0
+
+const positionsAttribute = new THREE.BufferAttribute(positionArray, 3)
+const geometry = new THREE.BufferGeometry()
+geometry.setAttribute('position', positionsAttribute)
+
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
@@ -43,34 +60,18 @@ window.addEventListener('resize', () => {
     renderer.setSize(sizes.width, sizes.height)
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-})
-
-window.addEventListener('dblclick', () => {
-    if(!document.fullscreenElement) {
-        console.log('go full screen')
-        canvas.requestFullscreen()
-    } else {
-        console.log('leave fullscreen')
-        document.exitFullscreen()
-    }
 })
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-// const aspect = sizes.width / sizes.height
-// const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 0.1, 100)
 camera.position.x = 2
 camera.position.y = 2
 camera.position.z = 2
-// camera.lookAt(mesh.position)
 scene.add(camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
-
-// controls.target.y = 2
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -89,15 +90,6 @@ const tick = () => {
     // CLOCK
     const elapsedTime = clock.getElapsedTime()
 
-    // Update camera
-    // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3
-    // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3
-    // camera.position.y = cursor.y * 5
-    // camera.lookAt(new THREE.Vector3())
-
-
-    // control is related to camera otherwise I gotta write code to update camera
-
     // Update controls
     controls.update()
 
@@ -108,5 +100,3 @@ const tick = () => {
 }
 
 tick()
-
-// When to use built in controls 
