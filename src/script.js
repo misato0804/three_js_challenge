@@ -1,5 +1,19 @@
 import * as THREE from 'three'
-import gsap from 'gsap'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/**
+ * Cursor
+ */
+const cursor = {
+    x: 0,
+    y: 0
+}
+
+window.addEventListener('mousemove', (e) => {
+    cursor.x = e.clientX / sizes.width - .5
+    cursor.y = - (e.clientY / sizes.height - .5)
+    console.log(cursor.x)
+})
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -21,8 +35,19 @@ const sizes = {
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-camera.position.z = 3
+const aspect = sizes.width / sizes.height
+// const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 0.1, 100)
+camera.position.x = 2
+camera.position.y = 2
+camera.position.z = 2
+// camera.lookAt(mesh.position)
 scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
+
+// controls.target.y = 2
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -37,36 +62,22 @@ let time = Date.now()
 // Clock
 const clock = new THREE.Clock()
 
-// GSAP
-gsap.to(mesh.position, {
-    duration: 1,
-    delay: 1,
-    x: 2
-})
-
 // Animation 
 const tick = () => {
-
-    
-    // We have to adapt framerate regardless user's computer framerate
-    /**
-     * SOLUTION 1
-     */
-    // Time
-    // const currentTime = Date.now()
-    // const deltaTime = currentTime - time
-    // time = currentTime
-
-    /**
-     * SOLUTION 2
-     */
     // CLOCK
-    // const elapsedTime = clock.getElapsedTime()
-    
-    // compatre current time to previous timestamp
-    // Update object
-    // mesh.position.y = Math.sin(elapsedTime)
-    // mesh.position.x = Math.cos(elapsedTime)
+    const elapsedTime = clock.getElapsedTime()
+
+    // Update camera
+    // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3
+    // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3
+    // camera.position.y = cursor.y * 5
+    // camera.lookAt(new THREE.Vector3())
+
+
+    // control is related to camera otherwise I gotta write code to update camera
+
+    // Update controls
+    controls.update()
 
     // Render
     renderer.render(scene, camera)
@@ -75,3 +86,5 @@ const tick = () => {
 }
 
 tick()
+
+// When to use built in controls 
