@@ -1,5 +1,11 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import GUI from 'lil-gui';
+
+/**
+ * Debug
+ */
+const gui = new GUI()
 
 /**
  * Cursor
