@@ -12,7 +12,6 @@ const cursor = {
 window.addEventListener('mousemove', (e) => {
     cursor.x = e.clientX / sizes.width - .5
     cursor.y = - (e.clientY / sizes.height - .5)
-    console.log(cursor.x)
 })
 
 // Canvas
@@ -29,13 +28,37 @@ scene.add(mesh)
 
 // Sizes
 const sizes = {
-    width: 800,
-    height: 600
+    width: window.innerWidth,
+    height: window.innerHeight
 }
+
+// Optimize screen size
+window.addEventListener('resize', () => {
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    // Update camera
+    camera.aspect  = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+    renderer.setSize(sizes.width, sizes.height)
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+})
+
+window.addEventListener('dblclick', () => {
+    if(!document.fullscreenElement) {
+        console.log('go full screen')
+        canvas.requestFullscreen()
+    } else {
+        console.log('leave fullscreen')
+        document.exitFullscreen()
+    }
+})
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-const aspect = sizes.width / sizes.height
+// const aspect = sizes.width / sizes.height
 // const camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 0.1, 100)
 camera.position.x = 2
 camera.position.y = 2
@@ -54,7 +77,6 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
-
 
 // Time
 let time = Date.now()
