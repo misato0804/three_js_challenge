@@ -1,99 +1,111 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import GUI from 'lil-gui';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 /**
- * Debug
+ * TEXTURE
  */
-const gui = new GUI()
+// SOLUTION 1
+// const image = new Image()
+// const texture = new THREE.Texture(image)
+// texture.colorSpace = THREE.SRGBColorSpace
+
+// image.onload = () => {
+//     texture.needsUpdate = true
+// }
+// image.src = '/textures/door/color.jpg'
 
 /**
- * Cursor
+ * LOADING MANAGER
+ * note: used when you wanna know the grobal loading process
  */
-const cursor = {
-    x: 0,
-    y: 0
-}
+const loadingManager = new THREE.LoadingManager()
+loadingManager.onStart = () => {console.log('start')}
+loadingManager.onProgress = () => {console.log('progress')}
+loadingManager.onError = () => {console.log('error')}
 
-window.addEventListener('mousemove', (e) => {
-    cursor.x = e.clientX / sizes.width - .5
-    cursor.y = - (e.clientY / sizes.height - .5)
-})
+// SOLUTION2
+const textureLoader = new THREE.TextureLoader(loadingManager)
+// 1 textureLoader can load multiple textures
+const texture = textureLoader.load('/textures/door/color.jpg')
+texture.colorSpace = THREE.SRGBColorSpace
+const colorTexture = textureLoader.load('/textures/door/color.jpg')
+const alphaTexture = textureLoader.load('/textures/door/alpha.jpg')
+const heightTexture = textureLoader.load('/textures/door/height.jpg')
+const normalTexture = textureLoader.load('/textures/door/normal.jpg')
+const metalnessTexture = textureLoader.load('/textures/door/metalness.jpg')
+const ambientOcclusionTexture = textureLoader.load('/textures/door/ambientOcclusion.jpg')
+const roughnessTexture = textureLoader.load('/textures/door/roughness.jpg')
 
+/**
+ * Base
+ */
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
 // Scene
-const scene = new THREE.Scene()
+const scene = new THREE.Scene()  
 
-// Object
-// const geometry = new THREE.BoxGeometry(1, 1, 1, 2,2,2)
-
-const positionArray = new Float32Array(9)
-
-positionArray[0] = 0
-positionArray[1] = 0
-positionArray[2] = 0
-positionArray[3] = 0
-positionArray[4] = 1
-positionArray[5] = 0
-positionArray[6] = 1
-positionArray[7] = 0
-positionArray[8] = 0
-
-const positionsAttribute = new THREE.BufferAttribute(positionArray, 3)
-const geometry = new THREE.BufferGeometry()
-geometry.setAttribute('position', positionsAttribute)
-
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+/**
+ * Object
+ */
+const geometry = new THREE.BoxGeometry(1, 1, 1)
+const material = new THREE.MeshBasicMaterial({ map: colorTexture })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
-// Sizes
+/**
+ * Sizes
+ */
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
 
-// Optimize screen size
-window.addEventListener('resize', () => {
+window.addEventListener('resize', () =>
+{
+    // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
 
     // Update camera
-    camera.aspect  = sizes.width / sizes.height
+    camera.aspect = sizes.width / sizes.height
     camera.updateProjectionMatrix()
-    renderer.setSize(sizes.width, sizes.height)
 
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-// Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-camera.position.x = 2
-camera.position.y = 2
-camera.position.z = 2
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 1
+camera.position.y = 1
+camera.position.z = 1
 scene.add(camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
-// Renderer
+/**
+ * Renderer
+ */
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-// Time
-let time = Date.now()
-
-// Clock
+/**
+ * Animate
+ */
 const clock = new THREE.Clock()
 
-// Animation 
-const tick = () => {
-    // CLOCK
+const tick = () =>
+{
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
@@ -102,6 +114,7 @@ const tick = () => {
     // Render
     renderer.render(scene, camera)
 
+    // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
 
